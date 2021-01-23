@@ -31,6 +31,7 @@ class TMBoards(TM1638s):
 		self._leds = Leds(self)
 		self._segments = Segments(self)
 		self._switches = Switches(self)
+		self._brightness = Brightness(self)
 
 
 	@property
@@ -53,6 +54,11 @@ class TMBoards(TM1638s):
 		"""getter for the switch"""
 		return self._switches
 
+	@property
+	def brightness(self):
+		"""getter for the switch"""
+		return self._brightness
+
 
 class Leds(object):
 	"""Class to manipulate the leds mounted on the chained TM Boards"""
@@ -71,8 +77,6 @@ class Leds(object):
 		# the leds are on the bit 0 of the odd addresses (led[0] on address 1, led[1] on address 3)
 		# leds from 8 to 15 are on chained TM #2, etc.
 		self._TM.sendData((index % 8) * 2 + 1, 1 if value else 0, index // 8)
-
-
 
 class Segments(object):
 	"""Class to manipulate the 7-segment displays on the chained TM Boards"""
@@ -176,4 +180,16 @@ class Switches(object):
 		sw = self._TM.getData(n//8)        # get the complete byte
 		return bool(sw[K] & (1 << n))
 
+class Brightness(object):
+	"""Class to manipulate the brightness on the chained TM Boards"""
 
+	def __init__(self, TM):
+		"""Initialize the Brightness object"""
+		self._TM = TM
+
+	def __setitem__(self, index, value):
+		"""
+		called by TM.brightness = value
+		:param value: (int) value to set the brightness to
+		"""
+		self._TM.turnOn(value)
